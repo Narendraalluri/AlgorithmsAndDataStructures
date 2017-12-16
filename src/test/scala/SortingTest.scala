@@ -2,7 +2,7 @@ import org.scalacheck.{Properties}
 import org.scalacheck.Prop.forAll
 
 
-object SortSpecification extends Properties("Sort") {
+object SortSpecification extends Properties("Sorting") {
 
   def isSorted[T](list: List[T])(implicit ordering:Ordering[T]) : Boolean = {
     if (list.size < 2)

@@ -1,6 +1,8 @@
 import scala.annotation.tailrec
+import scala.collection.immutable.Stack
 
 trait Sort {
+  Stack
   def sort[T](list: List[T])(implicit ordering:Ordering[T]): List[T] ;
 }
 

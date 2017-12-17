@@ -1,8 +1,8 @@
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.reflect.ClassTag
 
-case class BST[T](var value:T, var left: Option[BST[T]], var right: Option[BST[T]]) {
+
+case class BST[T](private var value:T, private var left: Option[BST[T]], private var right: Option[BST[T]]) {
   override def toString: String = {
     "(" + value + "," + left + "," + right + ")"
   }
@@ -63,7 +63,7 @@ object BST {
     }
   }
 
-  def insertTailRec[T](bst: BST[T], element:T)(implicit ordering: Ordering[T]): BST[T] = {
+  def insertTailRec[T](bst: BST[T], element:T)(implicit ordering: Ordering[T],  c: ClassTag[T]): BST[T] = {
     @tailrec def findSuitableParent[T](bst: BST[T], element:T, parent: BST[T])(implicit ordering: Ordering[T]): BST[T] = {
         bst match {
           case a@BST(v, Some(l), _) if ordering.gteq(v, element) =>  findSuitableParent(l, element, a)
@@ -78,6 +78,7 @@ object BST {
       case a@BST(v, None, _) if ordering.gteq(v, element) =>  a.left = Some(BST(element, None, None))
       case a@BST(v, _, None) if ordering.lt(v, element) =>  a.right = Some(BST(element, None, None))
     }
+    BSTPrettyPrinter.printTree(BSTPrettyPrinter.inOrderBFS(bst))
     bst
   }
 
@@ -98,14 +99,13 @@ object BST {
 }
 
 object Test extends App {
-  val inputList = List(2,6,3,6,1,8, 0, 2, 4, 9, 323)
+  val inputList = List(2,6,3,6,1,8, 43, 2, 4, 9, 323)
   val foldF = (memo: BST[Int], element: Int) => BST.insertTailRec(memo, element)
   val bst = inputList.tail.foldLeft(new BST(inputList.head, None, None))(foldF)
-  //println( BST.printTree(BST.inOrderBFS(bst)))
-  println(BST.height(Some(bst)))
+  //println(BST.height(Some(bst)))
   println(BST.heightTailRec(bst))
   val outputList = BST.inOrder(Some(bst))
   val outputListRec = BST.inOrderTailRec(bst)
-  println(outputList)
+  //println(outputList)
   println(outputListRec)
 }

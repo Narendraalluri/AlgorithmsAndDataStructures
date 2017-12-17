@@ -4,11 +4,10 @@ import scala.reflect.ClassTag
 
 
 
-object BSTPrettyPrinter {
+object AVLPrettyPrinter {
 
-  type BTree[T] = BST[T]
-  def inOrderBFS[T](bst: BTree[T])(implicit c: ClassTag[T]): Array[Array[Either[T, Char]]] = {
-    @tailrec def inOrderBFSHelper[T](tree: List[(BTree[T], Int, Int, Char, Int)], acc: Array[Array[Either[T, Char]]]): Array[Array[Either[T, Char]]] = {
+  def inOrderBFS[T](bst: AVLTree[T])(implicit c: ClassTag[T]): Array[Array[Either[T, Char]]] = {
+    @tailrec def inOrderBFSHelper[T](tree: List[(AVLTree[T], Int, Int, Char, Int)], acc: Array[Array[Either[T, Char]]]): Array[Array[Either[T, Char]]] = {
       val nextRow = (level: Int) => level match {
         case 1 => 1
         case 2 => 2
@@ -16,7 +15,7 @@ object BSTPrettyPrinter {
       }
       tree match {
         case Nil => acc
-        case (BST(v, None, None), row, col, lcr, level) :: ls => {
+        case (AVLTree(v, None, None, _), row, col, lcr, level) :: ls => {
           def printArrow(lcr: Char, row: Int, col:Int, x: Int): Unit = {
             lcr match {
               case 'l' => acc(row - x - 1)(col + x + 1 ) = Right('/')
@@ -39,23 +38,23 @@ object BSTPrettyPrinter {
           }
           inOrderBFSHelper(ls, acc)
         }
-        case (BST(v, Some(l), None), row, col, lcr, level) :: ls => {
-          inOrderBFSHelper((l, row + nextRow(level), col - nextRow(level), 'l', level - 1) :: (BST(v, None, None), row, col, lcr, level) :: ls, acc)
+        case (AVLTree(v, Some(l), None, _), row, col, lcr, level) :: ls => {
+          inOrderBFSHelper((l, row + nextRow(level), col - nextRow(level), 'l', level - 1) :: (AVLTree(v, None, None), row, col, lcr, level) :: ls, acc)
         }
-        case (BST(v, None, Some(r)), row, col, lcr, level) :: ls => {
-          inOrderBFSHelper((BST(v, None, None), row, col, lcr, level) :: (r, row + nextRow(level), col + nextRow(level), 'r', level - 1) :: ls, acc)
+        case (AVLTree(v, None, Some(r), _), row, col, lcr, level) :: ls => {
+          inOrderBFSHelper((AVLTree(v, None, None), row, col, lcr, level) :: (r, row + nextRow(level), col + nextRow(level), 'r', level - 1) :: ls, acc)
         }
-        case (BST(v, Some(l), Some(r)), row, col, lcr, level) :: ls => {
-          inOrderBFSHelper((l, row + nextRow(level), col - nextRow(level) , 'l', level -1 ) :: (BST(v, None, None), row, col, lcr, level) :: (r, row + nextRow(level), col + nextRow(level)  , 'r', level - 1) :: ls, acc)
+        case (AVLTree(v, Some(l), Some(r), _), row, col, lcr, level) :: ls => {
+          inOrderBFSHelper((l, row + nextRow(level), col - nextRow(level) , 'l', level -1 ) :: (AVLTree(v, None, None), row, col, lcr, level) :: (r, row + nextRow(level), col + nextRow(level)  , 'r', level - 1) :: ls, acc)
         }
       }
     }
-    val height = BST.heightTailRec(bst);
+    val height = AVLTree.height(Some(bst));
     val matrixWidth = 3 * Math.pow(2, height - 1).toInt - 1
     val matrixHeight = (matrixWidth / 2) + 2
     val matrix = Array.ofDim[Either[T, Char]](matrixHeight, matrixWidth)
     val initalWidth = 3*Math.pow(2, height-2).toInt - 1
-    inOrderBFSHelper(List((bst, 0, matrixWidth/2-1, 'c', height)), matrix)
+    inOrderBFSHelper(List((bst, 0, matrixWidth/2, 'c', height)), matrix)
   }
 
   def printTree[T](matrix: Array[Array[Either[T, Char]]]): Unit = {
@@ -69,8 +68,8 @@ object BSTPrettyPrinter {
     })
   }
 
-  def prettyPrint[T](bst: BTree[T])(implicit c: ClassTag[T]): Unit = {
-    BSTPrettyPrinter.printTree(BSTPrettyPrinter.inOrderBFS(bst))
+  def prettyPrint[T](bst: AVLTree[T])(implicit c: ClassTag[T]): Unit = {
+    BSTPrettyPrinter.printTree(AVLPrettyPrinter.inOrderBFS(bst))
   }
 
 }
